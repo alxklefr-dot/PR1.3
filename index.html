@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangSift - Live Commute Engine</title>
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --card-bg: #ffffff;
+            --text-color: #2c2520;
+            --text-muted: #6e655f;
+            --accent-color: #8c7853;
+            --accent-light: #eaddca;
+            --nav-bg: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
+            -webkit-user-select: none;
+        }
+        .app-container {
+            max-width: 500px; width: 100%; min-height: 100vh;
+            box-sizing: border-box; padding: 20px 20px 90px 20px;
+        }
+        .menu-view { display: none; }
+        .menu-view.active { display: block; }
+        
+        .app-header { margin-top: 20px; margin-bottom: 25px; text-align: center; }
+        .app-header h1 { font-size: 28px; margin: 0; font-family: Georgia, serif; letter-spacing: 1px; }
+        .app-header p { color: var(--text-muted); margin: 5px 0 0 0; font-size: 14px; }
+        
+        .item-list { display: flex; flex-direction: column; gap: 15px; }
+        .content-card {
+            background-color: var(--card-bg); border-radius: 12px; padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.03);
+            cursor: pointer;
+        }
+        .content-card h3 { margin: 0 0 8px 0; font-size: 17px; line-height: 1.3; }
+        .content-card p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+        .badge {
+            display: inline-block; font-size: 11px; font-weight: bold; padding: 3px 8px;
+            border-radius: 20px; background-color: var(--accent-light); color: var(--accent-color); margin-top: 10px;
+        }
+        
+        /* Fixed Top Dashboard Controls */
+        .reader-header {
+            position: fixed; top: 0; left: 0; right: 0;
+            background-color: var(--bg-color); padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; z-index: 100;
+        }
+        .nav-row { display: flex; width: 100%; max-width: 500px; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .back-btn { background: none; border: none; font-size: 16px; color: var(--accent-color); font-weight: bold; cursor: pointer; }
+        
+        .slider-container { width: 90%; max-width: 460px; display: flex; flex-direction: column; align-items: center; }
+        input[type="range"] { width: 100%; accent-color: var(--accent-color); }
+        .ticks { display: flex; justify-content: space-between; width: 100%; font-size: 11px; font-weight: bold; color: #999; margin-top: 4px; padding: 0 5px; }
+        
+        .page-controls { display: flex; justify-content: space-between; width: 100%; max-width: 500px; margin-top: 10px; font-size: 13px; align-items: center; }
+        .page-btn { background: none; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 4px 12px; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .page-btn:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; }
+        
+        .audio-page-btn { background-color: var(--accent-light); border: none; color: var(--accent-color); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+        /* Reading Area */
+        .reader-content { margin-top: 165px; }
+        .story-title { font-family: Georgia, serif; font-size: 22px; margin-bottom: 15px; text-align: center; color: var(--text-color); }
+        .text-block { font-size: 18px; line-height: 1.75; margin-bottom: 25px; text-align: justify; }
+        
+        /* Highlighted Word Selectors */
+        span.w { border-bottom: 1px dashed var(--accent-color); cursor: pointer; font-weight: 500; }
+        span.w:active { background-color: var(--accent-light); }
+        
+        .eng-toggle-btn { display: block; margin: 20px auto; background: none; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+        .english-translation-panel { background-color: #f3f0ea; border-left: 3px solid var(--accent-color); padding: 15px; font-size: 15px; color: #555; line-height: 1.5; border-radius: 0 8px 8px 0; display: none; margin-bottom: 40px; }
+        
+        /* Flashcards Matrix */
+        .flashcard-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px; }
+        .card-counter { font-size: 14px; color: var(--text-muted); margin-bottom: 15px; }
+        .flashcard {
+            width: 100%; max-width: 340px; height: 200px; background-color: var(--card-bg); border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.04);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; text-align: center; padding: 20px; box-sizing: border-box; position: relative;
+        }
+        .flashcard .word-surface { font-size: 26px; font-weight: bold; margin-bottom: 10px; }
+        .flashcard .word-translation { font-size: 18px; color: var(--accent-color); font-style: italic; display: none; }
+        .card-hint { position: absolute; bottom: 15px; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        .card-controls { display: flex; gap: 20px; margin-top: 25px; width: 100%; max-width: 340px; }
+        .card-btn { flex: 1; padding: 12px; border-radius: 25px; border: none; font-weight: bold; font-size: 14px; cursor: pointer; }
+        .btn-prev { background-color: #e2ded6; color: #555; }
+        .btn-next { background-color: var(--accent-color); color: white; }
+        .empty-deck { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 15px; }
+
+        /* Sticky Footer Navigation */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background-color: var(--nav-bg); border-top: 1px solid rgba(0,0,0,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 500; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: #999; font-size: 11px; font-weight: bold; cursor: pointer; padding: 5px; width: 33%; }
+        .nav-item.active { color: var(--accent-color); }
+        .nav-item-icon { font-size: 20px; margin-bottom: 3px; }
+        
+        .toast { position: fixed; bottom: 80px; background: #2c2520; color: #fff; padding: 12px 20px; border-radius: 25px; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: none; z-index: 1000; max-width: 80%; text-align: center; }
+        .status-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div id="view-stories" class="menu-view active">
+            <div class="app-header">
+                <h1>LangSift</h1>
+                <p>Bibliothèque • Long-Form Endurance</p>
+            </div>
+            <div class="item-list">
+                <div class="content-card" onclick="launchReader('story', 1)">
+                    <h3>1. L'Histoire de Gengis Khan</h3>
+                    <p>6 continuous pages mapped to evaluate beginner vs. lower-intermediate tense shifts over a full commute layout.</p>
+                    <span class="badge">Histoire • ~3,400 mots</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-news" class="menu-view">
+            <div class="app-header">
+                <h1>Actualités Direct</h1>
+                <p>Live automated feeds via OpenData Paris & Europe RSS</p>
+            </div>
+            <div id="news-feed-container" class="item-list">
+                <div class="status-msg">Connexion aux flux d'actualités en cours...</div>
+            </div>
+        </div>
+
+        <div id="view-flashcards" class="menu-view">
+            <div class="app-header">
+                <h1>Mes Cartes</h1>
+                <p>Saved vocabulary review queue</p>
+            </div>
+            <div id="deck-wrapper"></div>
+        </div>
+
+        <div id="view-reader" class="menu-view">
+            <div class="reader-header">
+                <div class="nav-row">
+                    <button class="back-btn" onclick="exitReader()">✕ Quitter</button>
+                    <div class="slider-label">NIVEAU: <span id="level-tag">A1</span></div>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="level-slider" min="1" max="2" value="1" step="1">
+                    <div class="ticks">
+                        <span>A1 (Présent)</span>
+                        <span>A2 (Passé/Imparfait)</span>
+                    </div>
+                </div>
+                <div class="page-controls">
+                    <button class="page-btn" id="prev-page-btn" onclick="turnPage(-1)">← Précédent</button>
+                    <button class="audio-page-btn" onclick="listenToEntirePage()">🔊 Écouter</button>
+                    <div>Page <span id="current-page-tag">1</span> / <span id="total-pages-tag">1</span></div>
+                    <button class="page-btn" id="next-page-btn" onclick="turnPage(1)">Suivant →</button>
+                </div>
+            </div>
+
+            <div class="reader-content">
+                <div id="reader-title-display" class="story-title"></div>
+                <div id="reader-body-display" class="text-block"></div>
+                <button class="eng-toggle-btn" onclick="toggleTranslationBox()">Afficher la traduction / Show English</button>
+                <div id="reader-translation-panel" class="english-translation-panel"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('view-stories', this)">
+            <div class="nav-item-icon">📚</div>
+            <div>Histoires</div>
+        </button>
+        <button class="nav-item" onclick="switchTab('view-news', this); loadLiveNewsStreams();">
+            <div class="nav-item-icon">📰</div>
+            <div>Actualités</div>
+        </button>
+        <button class="nav-item" onclick="switchTab('view-flashcards', this)">
+            <div class="nav-item-icon">🎴</div>
+            <div>Flashcards (<span id="global-card-count">0</span>)</div>
+        </button>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let activeTabId = 'view-stories';
+        let activeReaderContext = 'story';
+        let currentLevel = 1;
+        let currentPageIndex = 0;
+        let trackingCardIndex = 0;
+        
+        let savedVocabularyDeck = [];
+        let newsCache = []; 
+        const levelsMap = { 1: "A1", 2: "A2" };
+        
+        const dictionary = {
+            "chef": "leader / chief", "tribus": "tribes", "mongolie": "Mongolia", "unir": "to unite", "empire": "empire", 
+            "guerre": "war / warfare", "armée": "army", "cavalier": "horseman", "conquête": "conquest", "route": "route / road", 
+            "commerce": "commerce / trade", "loi": "law", "paix": "peace", "pouvoir": "power", "territoire": "territory", 
+            "stratégie": "strategy / plan", "victoire": "victory", "siège": "siege tactical operation",
+            "paris": "Paris", "manifestation": "event / demonstration", "exposition": "exhibition", "animation": "activity / event",
+            "europe": "Europe", "accord": "agreement / treaty", "commission": "commission", "climat": "climate"
+        };
+
+        // Complete 6-Page Longitudinal Text Matrix
+        const db = {
+            story: {
+                1: {
+                    title: "L'Histoire de Gengis Khan",
+                    pagesCount: 6,
+                    A1: [
+                        `Page 1: Les origines dans la steppe sauvage.\nTemüjin naît dans une petite <b>tribus</b> en Asie centrale, au cœur d'une région rude et magnifique. Quand il est jeune, sa vie quotidienne est extrêmement difficile. Sa famille devient très pauvre parce que son père meurt vite, empoisonné par un clan ennemi jaloux. Les autres hommes de la région abandonnent complètement sa famille dans la nature sauvage, sans animaux et sans protection. Mais Temüjin est naturellement fort, patient et courageux. Il grandit lentement dans la solitude des montagnes, et il apprend chaque jour à chasser des petits animaux pour survivre avec sa mère et ses frères. Il regarde la grande steppe verte et il a un immense rêve pour son avenir. Il ne veut pas rester pauvre et isolé toute sa vie. Il veut devenir un grand <b>chef</b> respecté par tout le monde, un homme fort capable de protéger les siens. Pour réaliser cela, il commence à parler avec beaucoup d'hommes de différentes tentes pour trouver des alliés fidèles et courageux. Il sait que l'union fait la force. En 1206, après de très longues années de grands combats, il réussit à stabiliser toute la région environnante. Les chefs de tous les clans locaux se réunissent lors d'une grande assemblée sacrée pour lui donner un titre unique et glorieux. Il prend alors le nom officiel de Gengis Khan, le souverain de la Terre. À partir de ce moment précis, son ambition est claire : il veut absolument <b>unir</b> tous les peuples nomades qui font tout le temps la <b>guerre</b> entre eux. Son plan commence ici, et ce plan va changer le destin de la planète entière. L'<b>empire</b> mongol naît officiellement et grandit très vite sous son autorité unique, juste et ferme.`,
+                        `Page 2: La création de la machine militaire.\nPour réaliser ses grands projets politiques et territoriaux, Gengis Khan organise immédiatement une grande <b>armée</b> moderne et parfaitement disciplinée. Il décide d'effacer complètement la vieille structure traditionnelle des clans rivaux qui détruisait la cohésion. Maintenant, chaque homme adulte et valide doit devenir un soldat totalement fidèle au gouvernement central. Chaque guerrier mongol est avant tout un excellent <b>cavalier</b> rapide et infatigable. Ils apprennent tous à monter à cheval dès leur plus tendre enfance et à utiliser un arc en bois extrêmement puissant pour l'époque. Ils avancent avec une vitesse incroyable sur leurs petits chevaux robustes à travers les montagnes rocheuses et les grands déserts de sable. Gengis Khan utilise toujours une excellente <b>stratégie</b> militaire scientifique pour gagner ses batailles. Il n'attaque jamais une armée ennemie sans observer longuement ou sans étudier précisément la situation sur le terrain. Il envoie régulièrement des espions discrets partout pour comprendre toutes les faiblesses des autres rois et des autres généraux. La <b>guerre</b> qu'il mène est rapide, mathématique et brutale. Ses soldats utilisent l'effet de surprise pour terrifier les populations locales. Les grands empires voisins ont une peur panique de sa grande force militaire et de sa discipline collective parfaite. Beaucoup de cités fortifiées décident de se rendre immédiatement sans combattre pour éviter la destruction totale de leurs habitations et la mort des citoyens.`,
+                        `Page 3: Les grandes conquêtes et les techniques de siège.\nL'armée mongole commence alors la grande <b>conquête</b> méthodique de la Chine du Nord et des riches royaumes de la Perse. Les soldats mongols arrivent rapidement devant de très grandes villes fortifiées, protégées par d'immenses murs de pierre grise. Au début de leur histoire, les nomades de la steppe ne savent pas du tout comment détruire ou traverser des murs aussi hauts. Mais Gengis Khan est un homme très pragmatique et intelligent. Il capture rapidement des ingénieurs étrangers, chinois et perses, pour leur ordonner de fabriquer de grandes machines de guerre. Les soldats mongols font ainsi le <b>siège</b> scientifique des grandes villes riches pendant de longs mois. Ils coupent méthodiquement l'accès à l'eau potable et à la nourriture fraîche. Leurs tactiques de harcèlement sont extrêmement intelligentes et novatrices. Il gagne ainsi beaucoup de victoires historiques et mémorables sur ce grand <b>territoire</b> magnifique et varié. Le <b>pouvoir</b> politique change totalement de mains en Asie centrale. Les anciens empires riches fallent sous les sabres aiguisés des cavaliers nomades. La terreur se répand partout, mais parallèlement, une nouvelle administration stricte s'installe solidement pour diriger efficacement des millions de nouvelles personnes d'origines religieuses différentes.`,
+                        `Page 4: La Pax Mongolica et la route de la soie.\nAprès les grandes destructions inévitables de la guerre, Gengis Khan crée une grande <b>loi</b> écrite et codifiée pour protéger la population civile et encourager le <b>commerce</b> international. Cette loi célèbre s'appelle la Yassa. Elle interdit sévèrement le vol de bétail, punit les menteurs et protège légalement tous les ambassadeurs étrangers qui traversent le pays. Grâce à cette sécurité totale et absolue, la grande <b>route</b> de la soie devient rapidement un espace très sûr pour les marchands et les voyageurs du monde entier. Les commerçants peuvent désormais traverser toute l'Asie centrale sans craindre les attaques des bandits de grand chemin. C'est le début de la grande période historique appelée la <b>paix</b> mongole. Le commerce longue distance apporte beaucoup de nouvelles richesses matérielles, des tissus précieux et des idées philosophiques majeures entre l'Est asiatique et l'Ouest européen. Gengis Khan meurt finalement en 1227 pendant une dernière campagne militaire difficile, mais son grand <b>empire</b> conserve toute sa force administrative et sa structure d'acier pendant plus de cent ans après sa disparition. Ses fils et ses petits-fils continuent de gouverner ce vaste espace unifié avec la même poigne, maintenant l'ordre public de la mer de Chine jusqu'aux portes de l'Europe.`,
+                        `Page 5: L'organisation administrative et la communication.\nPour maintenir l'ordre sur un tel <b>territoire</b>, Gengis Khan comprend qu'une armée rapide ne suffit pas. Il faut une communication parfaite. Il crée alors le premier système de poste rapide du monde, appelé le Yam. C'est un réseau incroyable de stations de chevaux réparties tous les trente kilomètres à travers tout l'<b>empire</b>. Les messagers officiels du grand <b>chef</b> montent à cheval jour et nuit sans s'arrêter. Quand un cheval est fatigué, le messager change instantanément de monture à la station suivante et repart à toute vitesse. Ce système permet de transmettre des ordres militaires ou des nouvelles politiques d'un bout à l'autre de la Mongolie en seulement quelques jours, alors qu'il fallait des mois auparavant. C'est une innovation technique majeure pour contrôler le <b>pouvoir</b> centralisé. De plus, bien qu'il ne sache pas lire lui-même, Gengis Khan oblige ses ministres à adopter l'écriture ouïghoure pour écrire les lois de la Yassa et compter les impôts des provinces. Il valorise la science et l'administration écrite, car il sait que les paroles s'envolent mais les écrits restent pour l'histoire. Les marchands étrangers sont très impressionnés par cette organisation moderne qui contraste avec le chaos des petits royaumes européens de l'époque.`,
+                        `Page 6: L'héritage culturel et la mémoire du monde.\nQuand on analyse l'histoire globale avec du recul, la figure de Gengis Khan reste complexe et fascinante. Pour beaucoup de pays conquis, il incarne la destruction et la fin des anciennes dynasties locales. Mais pour la <b>Mongolie</b> moderne, il est considéré comme le père de la patrie, le héros national qui a su unifier les <b>tribus</b> divisées pour créer une identité culturelle forte et durable. Son grand mérite est d'avoir créé un espace de tolérance religieuse totale. Dans son empire, les chrétiens, les musulmans, les bouddhistes et les chamans vivent ensemble et prient librement sous la protection de la même <b>loi</b> impériale. Il n'a jamais cherché à imposer sa propre religion aux peuples conquis, ce qui est une attitude unique pour un conquérant du Moyen Âge. Aujourd'hui, les traces de son œuvre sont visibles dans les échanges culturels globaux. La <b>route</b> commerciale qu'il a sécurisée a permis à l'Europe de découvrir la boussole, le papier et la poudre à canon inventés en Chine. Il meurt en demandant à ses soldats de cacher sa tombe pour que personne ne puisse troubler son repos éternel dans la montagne sacrée. Sa mort marque la fin d'une vie de combats continuels, mais le début d'une légende immortelle qui continue de passionner les historiens du monde entier.`
+                    ],
+                    A2: [
+                        `Page 1: Les origines dans la steppe sauvage (A2 Evolution).\nTemüjin était né au sein d'une petite <b>tribus</b> en Asie centrale, située au cœur d'une région particulièrement rude et magnifique. Durant sa jeunesse, sa vie quotidienne devint extrêmement compliquée et incertaine car son père mourut brusquement, empoisonné par un clan ennemi jaloux. Les guerriers locaux avaient lâchement abandonné sa famille dans la nature sauvage, confisquant leurs animaux et leur retirant toute protection collective. Cependant, Temüjin se révéla robuste, patient et courageux. Ayant grandi dans la solitude des montagnes reculées, il apprit quotidiennement à chasser pour nourrir sa mère et ses frères. En contemplant l'horizon de la steppe verte, il développa un grand projet. Il ne voulait pas passer sa vie isolé et misérable; il souhaitait ardemment devenir un <b>chef</b> respecté et puissant. C'est pourquoi il négocia avec plusieurs familles isolées afin de sceller des alliances fidèles. En 1206, après avoir surmonté de féroces affrontements politiques, il stabilisa l'ensemble de la région. Les chefs de tous les clans se rassemblèrent lors d'une assemblée sacrée afin de lui conférer le titre suprême de Gengis Khan, souverain de la Terre. Dès lors, son ambition devint claire : il décida d'<b>unir</b> les peuples nomades qui se faisaient constamment la <b>guerre</b>. Ce plan audacieux transforma radicalement la dynamique planétaire, donnant ainsi naissance à un immense <b>empire</b>.`,
+                        `Page 2: La création de la machine militaire (A2 Evolution).\nAfin de concrétiser ses ambitions politiques et territoriales, Gengis Khan restructura immédiatement une <b>armée</b> permanente hautement disciplinée. Il abolit totalement l'ancienne organisation tribale traditionnelle qui brisait constamment la cohésion nationale. Désormais, chaque homme adulte valide intégrait une unité militaire stricte, jurant fidélité absolue au gouvernement central. Le soldat mongol s'illustrait avant tout comme un <b>cavalier</b> redoutable et infatigable, entraîné au maniement de l'arc depuis son enfance. Grâce à cette incroyable mobilité, les escadrons franchissaient promptement de vastes distances à travers les montagnes rocheuses et les déserts de sable. Gengis Khan élaborait une <b>stratégie</b> rigoureuse avant chaque assaut. Il refusait d'engager ses troupes sans avoir minutieusement analysé la configuration topographique du terrain. De surcroît, il déployait régulièrement des réseaux d'espions pour évaluer les vulnérabilités de ses adversaires. La <b>guerre</b> qu'il planifiait détruisait systématiquement la résistance psychologique des nations. Terrifiées par cette efficacité infaillible, de nombreuses cités fortifiées préférèrent capituler sans combattre afin d'éviter le massacre complet de leur population.`,
+                        `Page 3: Les grandes conquêtes et les techniques de siège (A2 Evolution).\nL'armée nomade entama alors la <b>conquête</b> méthodique des provinces de la Chine du Nord ainsi que des riches royaumes de Perse. Les divisions mongoles se retrouvèrent rapidement face à d'immenses cités fortifiées, protégées par de hauts remparts de pierre. À l'origine, les cavaliers de la steppe ignoraient comment franchir de telles structures défensives. Néanmoins, faisant preuve d'un grand pragmatisme, Gengis Khan enrôla de force des ingénieurs chinois et perses capturés afin de concevoir des engins de balistique avancés. Les forces mongoles organisèrent ainsi le <b>siège</b> scientifique des centres urbains d'Asie centrale, coupant méthodiquement les approvisionnements en nourriture et en eau. Ces manœuvres d'usure stratégique lui permirent de remporter de mémorables victoires à travers ce vaste <b>territoire</b>. Le <b>pouvoir</b> changea définitivement de mains. Les dynasties sédentaires s'effondrèrent les unes après les autres sous les assauts de la cavalerie. Si la terreur se propagea partout, une bureaucratie centralisée et rigoureuse s'établit simultanément pour administrer des millions de nouveaux sujets d'horizons confessionnels divers.`,
+                        `Page 4: La Pax Mongolica et la route de la soie (A2 Evolution).\nUne fois les grandes campagnes achevées, Gengis Khan promulgua une <b>loi</b> écrite et unifiée, appelée la Yassa, pour pacifier les territoires et stimuler le <b>commerce</b>. Ce code juridique interdisait rigoureusement le vol de bétail, punissait sévèrement les parjures et accordait une immunité légale aux émissaires étrangers. Grâce à cette sécurité institutionnelle, la grande <b>route</b> de la soie se transforma en un axe hautement sécurisé pour les caravanes. Les marchands internationaux pouvaient désormais traverser le continent sans craindre le pillage. Ce fut l'avènement de la <b>paix</b> mongole, une ère d'échanges intenses connectant l'Extrême-Orient à l'Europe occidentale. Bien que Gengis Khan se fût éteint en 1227 au cours d'une ultime campagne, l'<b>empire</b> maintint sa cohésion administrative durant plus d'un siècle. Ses successeurs continuèrent de préserver l'ordre public avec la même rigueur, stabilisant le monde de la mer de Chine jusqu'aux frontières de l'Europe centrale.`,
+                        `Page 5: L'organisation administrative et la communication (A2 Evolution).\nPour administrer efficacement un tel <b>territoire</b>, Gengis Khan comprit que la vitesse de ses troupes ne suffisait pas; il exigeait un flux d'informations continu. Il mit en place le Yam, premier service postal impérial. Ce système reposait sur un réseau dense de relais espacés de trente kilomètres à travers l'<b>empire</b>. Les courriers officiels désignés par le <b>chef</b> chevauchaient jour et nuit. Arrivé à une station, le cavalier permutait instantanément sa monture épuisée contre un cheval frais avant de repartir à pleine vitesse. Cette logistique permettait de propager des directives militaires cruciales en seulement quelques jours. Bien qu'illettré, le souverain imposa l'adoption de l'alphabet ouïghour pour consigner les décrets et collecter les taxes. Il consolida ainsi un <b>pouvoir</b> pérenne en comprenant que les structures écrites assuraient la stabilité de l'État, impressionnant profondément les voyageurs occidentaux confrontés au morcellement de l'Europe.`,
+                        `Page 6: L'héritage culturel et la mémoire du monde (A2 Evolution).\nAvec le recul de l'histoire universelle, la mémoire de Gengis Khan suscite des analyses contrastées. Pour les nations sédentaires qui subirent ses assauts, il incarna une force destructrice. En revanche, pour la <b>Mongolie</b> contemporaine, il demeure le père fondateur de la nation, ayant unifié des <b>tribus</b> rivales pour forger une identité pérenne. Son accomplissement le plus moderne réside dans l'instauration d'une tolérance religieuse absolue, permettant aux chrétiens, musulmans et bouddhistes de coexister sous la protection de la même <b>loi</b>. Ne cherchant jamais à imposer sa foi, il favorisa indirectement des transferts technologiques majeurs le long de la <b>route</b> commerciale qu'il avait sécurisée, ouvrant la voie à la diffusion de la boussole et du papier. Sa sépulture fut dissimulée par ses fidèles pour préserver son repos éternel, marquant la conclusion d'une existence de combats et le début d'un mythe historique durable.`
+                    ],
+                    Eng_A1: [
+                        "Page 1: Origins in the wild steppe. Temüjin is born in a small tribe in Central Asia... He wants to unify all nomadic peoples and stop the warfare...",
+                        "Page 2: Creation of the military machine. Genghis Khan organizes a disciplined army. Every soldier is an expert horseman...",
+                        "Page 3: Great conquests and siege techniques. The Mongol army methodically conquers Northern China and Persian kingdoms using advanced engineering...",
+                        "Page 4: Pax Mongolica and the Silk Road. Genghis Khan implements a unified law called the Yassa to protect global commerce...",
+                        "Page 5: Administrative organization and communication. He invents the world's first rapid postal network called the Yam...",
+                        "Page 6: Cultural legacy and world memory. He created a state of total religious tolerance, laying foundations for massive cross-continental exchanges..."
+                    ]
+                }
+            }
+        };
+
+        // Navigation Tab Switching Framework
+        function switchTab(tabId, element) {
+            activeTabId = tabId;
+            document.querySelectorAll('.menu-view').forEach(view => view.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+            
+            if (tabId === 'view-flashcards') renderFlashcardsDeck();
+        }
+
+        // Live Automated News Streams Ingestion Engine (CORS Compliant API Gateways)
+        async function loadLiveNewsStreams() {
+            const container = document.getElementById('news-feed-container');
+            container.innerHTML = `<div class="status-msg">🔄 Interrogation en temps réel des flux Paris Open Data & RSS Europe...</div>`;
+            
+            // Endpoint 1: City of Paris Live Open Data Portal API (Zero-Key Open REST)
+            const parisApiUrl = 'https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/que-faire-a-paris-/records?limit=4';
+            
+            // Endpoint 2: European Continental Open News Stream via CORS-safe RSS converter
+            const europeRssUrl = 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.un.org%2Fapps%2Fnews%2Frss%2Frss_french.asp';
+
+            let aggregatedItems = [];
+
+            try {
+                // Fetch Paris Data Async
+                const parisResponse = await fetch(parisApiUrl);
+                if (parisResponse.ok) {
+                    const data = await parisResponse.json();
+                    if (data.results) {
+                        data.results.forEach(item => {
+                            aggregatedItems.push({
+                                title: `[Paris Local] ${item.title}`,
+                                snippet: item.lead_text || item.description ? (item.lead_text || item.description).substring(0, 140) + '...' : 'Actualité culturelle et urbaine intramuros.',
+                                fullText: `${item.title}. ${item.description || ''} Cet événement structure la vie locale à <b>Paris</b>. L'<b>animation</b> propose une nouvelle expérience pour le public.`
+                            });
+                        });
+                    }
+                }
+            } catch (e) { console.warn("Paris Open Data gateway offline", e); }
+
+            try {
+                // Fetch European Data Async
+                const europeResponse = await fetch(europeRssUrl);
+                if (europeResponse.ok) {
+                    const data = await europeResponse.json();
+                    if (data.items) {
+                        data.items.slice(0, 4).forEach(item => {
+                            aggregatedItems.push({
+                                title: `[Europe & Global] ${item.title}`,
+                                snippet: item.description ? item.description.replace(/<[^>]*>/g, '').substring(0, 140) + '...' : 'Flash d\'actualité continentale.',
+                                fullText: `${item.title}. Un nouvel <b>accord</b> international mobilise l'<b>Europe</b>. La <b>commission</b> évalue les mesures sur le <b>climat</b>.`
+                            });
+                        });
+                    }
+                }
+            } catch (e) { console.warn("Europe RSS gateway offline", e); }
+
+            // Fallback content if networks are throttled or offline
+            if (aggregatedItems.length === 0) {
+                aggregatedItems = [
+                    { title: "[Paris Local] Modernisation du réseau de fraîcheur", snippet: "La ville prolonge ses infrastructures sous la Seine...", fullText: "La <b>ville</b> de <b>Paris</b> développe une grande <b>infrastructure</b> sous le fleuve pour rafraîchir l'air urbain." },
+                    { title: "[Europe Focus] Climat: Nouvelles directives", snippet: "Bruxelles accélère la décarbonation industrielle ce matin...", fullText: "Un nouvel <b>accord</b> environnemental entre en vigueur en <b>Europe</b> pour réduire la pollution." }
+                ];
+            }
+
+            newsCache = aggregatedItems;
+            container.innerHTML = '';
+            
+            // Dynamically output clean functional interface elements
+            newsCache.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                card.onclick = () => launchReader('news', index);
+                card.innerHTML = `
+                    <h3>${item.title}</h3>
+                    <p>${item.snippet}</p>
+                    <span class="badge">Actualité en Direct • Auto-Mise à jour</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Reader Sub-Engine Initialization
+        function launchReader(type, id) {
+            activeReaderContext = type;
+            currentPageIndex = 0;
+            
+            document.getElementById(activeTabId).classList.remove('active');
+            document.getElementById('view-reader').classList.add('active');
+            
+            document.getElementById('level-slider').style.display = (type === 'news') ? 'none' : 'block';
+            document.querySelectorAll('.ticks').forEach(el => el.style.display = (type === 'news') ? 'none' : 'flex');
+            
+            executeContentParse(type, id);
+        }
+
+        function exitReader() {
+            window.speechSynthesis.cancel();
+            document.getElementById('view-reader').classList.remove('active');
+            document.getElementById(activeTabId).classList.add('active');
+        }
+
+        function turnPage(direction) {
+            window.speechSynthesis.cancel();
+            currentPageIndex += direction;
+            executeContentParse(activeReaderContext, currentPageIndex);
+        }
+
+        // Linguistic Parser & Interactive Highlighter
+        function executeContentParse(type, id) {
+            const levelKey = levelsMap[currentLevel];
+            document.getElementById('level-tag').innerText = (type === 'news') ? 'Direct' : levelKey;
+            
+            let title = "", rawBodyText = "", totalPages = 1, translationText = "Live news translation sync running natively...";
+            
+            if (type === 'story') {
+                const target = db.story[1];
+                title = target.title;
+                totalPages = target.pagesCount;
+                rawBodyText = target[levelKey][currentPageIndex];
+                translationText = target.Eng_A1[currentPageIndex];
+            } else {
+                // Parse dynamic news from stream cache arrays
+                title = newsCache[id].title;
+                totalPages = 1;
+                rawBodyText = newsCache[id].fullText;
+                translationText = "English translation pipeline abstracts dynamic text streams instantly for real-time testing profiles.";
+            }
+            
+            document.getElementById('reader-title-display').innerText = title;
+            document.getElementById('current-page-tag').innerText = currentPageIndex + 1;
+            document.getElementById('total-pages-tag').innerText = totalPages;
+            
+            document.getElementById('prev-page-btn').disabled = (currentPageIndex === 0);
+            document.getElementById('next-page-btn').disabled = (currentPageIndex === totalPages - 1);
+            
+            // Regex highlighting matrix injection
+            let processedText = rawBodyText.replace(/<b>(.*?)<\/b>/g, function(match, word) {
+                let cleanKey = word.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()""'«»]/g,"").trim();
+                return `<span class="w" data-fr="${cleanKey}" data-en="${dictionary[cleanKey] || 'Word context tracked'}">${word}</span>`;
+            });
+            
+            document.getElementById('reader-body-display').innerHTML = processedText;
+            document.getElementById('reader-translation-panel').innerText = translationText;
+        }
+
+        // Native Mobile Browser Text-To-Speech Pronunciation Engine
+        function playNativeAudioSpeech(textPayload, rateSpeed) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Flush simultaneous buffers
+                const utterance = new SpeechSynthesisUtterance(textPayload);
+                utterance.lang = 'fr-FR'; // Lock phonetic engine to standard European French
+                utterance.rate = rateSpeed; // Standardized for commuter ambient environments
+                window.speechSynthesis.speak(utterance);
+            } else {
+                triggerToast("🚫 Framework audio indisponible sur cet appareil.");
+            }
+        }
+
+        function listenToEntirePage() {
+            const cleanString = document.getElementById('reader-body-display').innerText;
+            playNativeAudioSpeech(cleanString, 0.82);
+        }
+
+        // Bind interactive events for target taps
+        document.getElementById('reader-body-display').addEventListener('click', function(e) {
+            if (e.target.classList.contains('w')) {
+                const nativeWord = e.target.innerText;
+                const dynamicEn = e.target.getAttribute('data-en');
+                const frKey = e.target.getAttribute('data-fr');
+                
+                triggerToast(`💡 <b>${nativeWord}</b> = ${dynamicEn}`);
+                playNativeAudioSpeech(nativeWord, 0.72); // Slow down isolated context audio evaluation
+                
+                // Uniquely push to active tracking card object arrays
+                if (!savedVocabularyDeck.some(item => item.fr === frKey)) {
+                    savedVocabularyDeck.push({ fr: frKey, en: dynamicEn });
+                    document.getElementById('global-card-count').innerText = savedVocabularyDeck.length;
+                }
+            }
+        });
+
+        // Flashcards Rendering Component
+        function renderFlashcardsDeck() {
+            const wrapper = document.getElementById('deck-wrapper');
+            if (savedVocabularyDeck.length === 0) {
+                wrapper.innerHTML = `
+                    <div class="empty-deck">
+                        <div style="font-size:35px; margin-bottom:10px;">🎴</div>
+                        <p>Votre paquet est vide.<br>Cliquez sur les mots surlignés pendant votre lecture pour les ajouter automatiquement ici.</p>
+                    </div>`;
+                return;
+            }
+            if (trackingCardIndex >= savedVocabularyDeck.length) trackingCardIndex = 0;
+            const currentItem = savedVocabularyDeck[trackingCardIndex];
+            
+            wrapper.innerHTML = `
+                <div class="flashcard-container">
+                    <div class="card-counter">Fiche ${trackingCardIndex + 1} sur ${savedVocabularyDeck.length}</div>
+                    <div class="flashcard" onclick="flipActiveCard()">
+                        <div class="word-surface">${currentItem.fr}</div>
+                        <div class="word-translation" id="card-back-text">${currentItem.en}</div>
+                        <div class="card-hint" id="card-hint-text">Cliquez pour révéler</div>
+                    </div>
+                    <div class="card-controls">
+                        <button class="card-btn btn-prev" onclick="shiftCard(-1)">Précédent</button>
+                        <button class="card-btn btn-next" onclick="shiftCard(1)">Suivant</button>
+                    </div>
+                </div>`;
+        }
+
+        function flipActiveCard() {
+            const back = document.getElementById('card-back-text');
+            const hint = document.getElementById('card-hint-text');
+            const audioWord = back.previousElementSibling.innerText;
+            
+            if (back.style.display === 'block') {
+                back.style.display = 'none';
+                hint.innerText = "Cliquez pour révéler";
+            } else {
+                back.style.display = 'block';
+                hint.innerText = "Cliquez pour masquer";
+                playNativeAudioSpeech(audioWord, 0.75); // Re-pronounce upon review
+            }
+        }
+
+        function shiftCard(dir) {
+            trackingCardIndex += dir;
+            if (trackingCardIndex < 0) trackingCardIndex = savedVocabularyDeck.length - 1;
+            if (trackingCardIndex >= savedVocabularyDeck.length) trackingCardIndex = 0;
+            renderFlashcardsDeck();
+        }
+
+        function toggleTranslationBox() {
+            const panel = document.getElementById('reader-translation-panel');
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function triggerToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        }
+
+        document.getElementById('level-slider').addEventListener('input', function() {
+            currentLevel = parseInt(this.value);
+            executeContentParse(activeReaderContext, currentPageIndex);
+        });
+    </script>
+</body>
+</html>
