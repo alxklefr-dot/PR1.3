@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LangSift Ecosystem - Test Sandbox</title>
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --card-bg: #ffffff;
+            --text-color: #2c2520;
+            --text-muted: #6e655f;
+            --accent-color: #8c7853;
+            --accent-light: #eaddca;
+            --success-color: #2e7d32;
+            --error-color: #c62828;
+            --nav-bg: #ffffff;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-user-select: none;
+        }
+        
+        .app-container {
+            max-width: 500px;
+            width: 100%;
+            min-height: 100vh;
+            box-sizing: border-box;
+            padding: 20px 20px 90px 20px;
+        }
+        
+        .menu-view {
+            display: none;
+        }
+        .menu-view.active {
+            display: block;
+        }
+
+        .app-header {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .app-header h1 {
+            font-size: 26px;
+            margin: 0;
+            font-family: Georgia, serif;
+            letter-spacing: 0.5px;
+        }
+        .app-header p {
+            color: var(--text-muted);
+            margin: 4px 0 0 0;
+            font-size: 13px;
+        }
+
+        .feed-section-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+            margin: 20px 0 10px 0;
+            font-weight: bold;
+            border-bottom: 1px solid var(--accent-light);
+            padding-bottom: 4px;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .refresh-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-light);
+            color: var(--accent-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .content-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+            cursor: pointer;
+        }
+        .content-card h3 {
+            margin: 0 0 6px 0;
+            font-size: 15px;
+            line-height: 1.35;
+        }
+        .content-card p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background-color: var(--accent-light);
+            color: var(--accent-color);
+            margin-top: 8px;
+        }
+
+        /* Fixed Sticky Header Layout for Slider Controls */
+        .reader-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background-color: var(--bg-color);
+            padding: 12px 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .nav-row {
+            display: flex;
+            width: 100%;
+            max-width: 500px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 15px;
+            color: var(--accent-color);
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .slider-label {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .slider-container {
+            width: 100%;
+            max-width: 460px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent-color);
+            margin: 4px 0;
+        }
+        .ticks {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 10px;
+            font-weight: bold;
+            color: #999;
+        }
+
+        .reader-content {
+            margin-top: 110px;
+            width: 100%;
+        }
+        .story-title {
+            font-family: Georgia, serif;
+            font-size: 20px;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        .text-block {
+            font-size: 17px;
+            line-height: 1.75;
+            margin-bottom: 25px;
+        }
+        span.w {
+            border-bottom: 1px dashed var(--accent-color);
+            cursor: pointer;
+        }
+        span.w:active { background-color: var(--accent-light); }
+        
+        .eng-toggle-btn {
+            display: block;
+            margin: 20px 0;
+            background: none;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .english-translation-panel {
+            background-color: #f3f0ea;
+            border-left: 3px solid var(--accent-color);
+            padding: 14px;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+            white-space: pre-line;
+            display: none;
+            margin-bottom: 35px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Binary Flashcards Elements */
+        .flashcard-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .card-counter {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .flashcard {
+            width: 100%;
+            max-width: 340px;
+            height: 180px;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+            cursor: pointer;
+        }
+        .flashcard .word-surface { font-size: 24px; font-weight: bold; margin-bottom: 8px; }
+        .flashcard .word-translation { font-size: 17px; color: var(--accent-color); font-style: italic; display: none; }
+        .card-hint { position: absolute; bottom: 12px; font-size: 10px; color: #aaa; text-transform: uppercase; }
+        
+        .card-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 340px;
+        }
+        .card-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-know { background-color: var(--success-color); }
+        .btn-unknown { background-color: var(--error-color); }
+        
+        .empty-deck { text-align: center; color: var(--text-muted); padding: 40px; }
+
+        /* Persistent Navigation Tab Footer */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 65px;
+            background-color: var(--nav-bg);
+            border-top: 1px solid rgba(0,0,0,0.06);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 900;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 11px;
+            font-weight: bold;
+            width: 33%;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--accent-color); }
+        .nav-item-icon { font-size: 18px; margin-bottom: 2px; }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            background: #2c2520;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: none;
+            z-index: 2000;
+        }
+        .status-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div id="view-stories" class="menu-view active">
+            <div class="app-header">
+                <h1>Histoires</h1>
+                <p>Explore narrative styles across language levels</p>
+            </div>
+            <div class="action-bar">
+                <button class="refresh-btn" onclick="rotateStoriesLibrary()">🔄 Tourner la bibliothèque</button>
+            </div>
+            <div id="stories-feed-container" class="item-list"></div>
+        </div>
+
+        <div id="view-news" class="menu-view">
+            <div class="app-header">
+                <h1>Actualités Direct</h1>
+                <p>Live global feeds simulated directly on your machine</p>
+            </div>
+            <div class="action-bar">
+                <button class="refresh-btn" onclick="fetchLiveRegionalNews()">🔄 Actualiser les flux</button>
+            </div>
+            
+            <div class="feed-section-title">📍 En France (Local)</div>
+            <div id="news-local-container" class="item-list"></div>
+            
+            <div class="feed-section-title">🇪🇺 L'Europe (Continental)</div>
+            <div id="news-europe-container" class="item-list"></div>
+            
+            <div class="feed-section-title">🌐 Dans le Monde (Global)</div>
+            <div id="news-global-container" class="item-list"></div>
+        </div>
+
+        <div id="view-flashcards" class="menu-view">
+            <div class="app-header">
+                <h1>Mon Vocabulaire</h1>
+                <p>Master tracked vocabulary words by retention</p>
+            </div>
+            <div id="deck-wrapper"></div>
+        </div>
+
+        <div id="view-reader" class="menu-view">
+            <div class="reader-header">
+                <div class="nav-row">
+                    <button class="back-btn" onclick="exitReaderView()">✕ Retour</button>
+                    <div class="slider-label">NIVEAU CEFR: <span id="level-tag">A1</span></div>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="level-slider" min="1" max="5" value="1" step="1">
+                    <div class="ticks">
+                        <span>A1</span>
+                        <span>A2</span>
+                        <span>B1</span>
+                        <span>C1</span>
+                        <span>Fluide</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reader-content">
+                <div id="reader-title-display" class="story-title"></div>
+                <div id="reader-body-display" class="text-block"></div>
+                
+                <div id="brand-ad-placement" style="margin: 35px 0; display: none;">
+                    <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; text-align: center;">Sponsorisé — Analyse publicitaire</div>
+                    <div style="background: linear-gradient(135deg, #111 0%, #222 100%); color: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); position: relative; overflow: hidden;">
+                        <div id="ad-badge-display" style="position: absolute; top: 15px; right: 15px; background: #e60000; color: white; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 20px; transform: rotate(4deg); text-transform: uppercase;"></div>
+                        <div id="ad-header-display" style="font-family: Georgia, serif; font-size: 17px; line-height: 1.4; margin-bottom: 25px; padding-right: 75px; font-weight: bold;"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #333; padding-top: 15px;">
+                            <div id="ad-cta-display" style="font-size: 13px; font-style: italic; color: #ccc;"></div>
+                            <div style="background: #e60000; color: white; padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase;">Coca-Cola Zéro</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="eng-toggle-btn" onclick="toggleTranslationBox()">Afficher la traduction / Show English</button>
+                <div id="reader-translation-panel" class="english-translation-panel"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchActiveTab('view-stories', this)">
+            <div class="nav-item-icon">📚</div>
+            <div>Histoires</div>
+        </button>
+        <button class="nav-item" onclick="switchActiveTab('view-news', this)">
+            <div class="nav-item-icon">📰</div>
+            <div>Actualités</div>
+        </button>
+        <button class="nav-item" onclick="switchActiveTab('view-flashcards', this)">
+            <div class="nav-item-icon">🎴</div>
+            <div>Flashcards (<span id="global-card-count">0</span>)</div>
+        </button>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Global Systems State Engine
+        let activeTabId = 'view-stories';
+        let readerContextType = 'story';
+        let selectedItemRegistryId = 0;
+        let selectedCefrLevelIndex = 1;
+        let flashcardTargetIndex = 0;
+
+        let memoryVocabularyRegistry = [];
+        let newsCacheMatrix = { local: [], europe: [], global: [] };
+        const levelsMap = { 1: "A1", 2: "A2", 3: "B1", 4: "C1", 5: "Fluide" };
+
+        const staticGlossary = {
+            "accord": "agreement", "climat": "climate", "sommet": "summit", "dirigeants": "leaders", 
+            "vaisseau": "vessel/spaceship", "forêt": "forest", "chambre": "room", "lettre": "letter",
+            "goût": "taste", "sucre": "sugar", "plaisir": "pleasure", "intensité": "intensity", "expérience": "experience"
+        };
+
+        // Coca-Cola Advertising Framework Matrix
+        const brandCampaignDatabase = {
+            active: true,
+            advertiser: "Coca-Cola Zero",
+            levels: {
+                1: { header: "Partagez le <b>goût</b> de Coca-Cola. Sans <b>sucre</b> !", badge: "Nouveau goût !", cta: "Déjà goûté ?", eng: "[A1 Ad] Share the taste of Coca-Cola. Without sugar! / New taste! / Tried it yet?" },
+                2: { header: "Partagez le bon <b>goût</b> de Coca-Cola. Zéro <b>sucre</b> !", badge: "Nouvelle recette, meilleur goût !", cta: "Est-ce que vous l'avez déjà essayé ?", eng: "[A2 Ad] Share the good taste... / New recipe, better taste! / Have you tried it?" },
+                3: { header: "Partagez le vrai <b>goût</b> de Coca-Cola, le <b>sucre</b> en moins.", badge: "Nouvelle formule : encore meilleur !", cta: "Qu'attendez-vous pour y goûter ?", eng: "[B1 Ad] Share the true taste... / New formula: even better! / What are you waiting for?" },
+                4: { header: "Partagez toute l'<b>intensité</b> de Coca-Cola, la culpabilité en moins.", badge: "Saveur réinventée : une intensité inédite.", cta: "Prêt à tenter l'<b>expérience</b> ?", eng: "[C1 Ad] Share all the intensity... / Unprecedented intensity. / Ready for the experience?" },
+                5: { header: "Partagez le <b>goût</b> unique de Coca-Cola. Tout le <b>plaisir</b>, zéro <b>sucre</b>.", badge: "Nouvelle recette : toujours aussi intense, encore plus irrésistible.", cta: "L'avez-vous testé ?", eng: "[Fluide Ad] Share the unique taste... / All the pleasure, zero sugar. / Have you tested it?" }
+            }
+        };
+
+        const globalStoriesRepository = [
+            { id: 0, title: "Le Garçon de l'Escalier", snippet: "An orphan child receives unexpected letters written in emerald ink.", tier: "Fantastique" },
+            { id: 1, title: "L'Ascension de Temüjin", snippet: "The harsh early survival winters of the youth who unified empires.", tier: "Histoire" }
+        ];
+
+        const storyDatabase = {
+            0: {
+                title: "Le Garçon de l'Escalier",
+                A1: "Thomas est un <b>garçon</b> de onze ans. Il habite dans une <b>chambre</b> sous l'escalier. Un jour, le facteur apporte une <b>lettre</b> étrange.",
+                A2: "Thomas est un jeune garçon qui dort dans une petite chambre sous l'escalier. Le jour de son anniversaire, il reçoit une enveloppe mystérieuse.",
+                B1: "Thomas est un orphelin élevé par des tuteurs stricts qui l'ont confiné dans un réduit sous l'escalier. Sa vie bascule quand une lettre parvient au domaine.",
+                C1: "Thomas passait ses nuits dans un étroit réduit sous l'escalier. Cependant, la monotonie de ce cadre fut brisée par l'arrivée d'une missive calligraphiée.",
+                Fluide: "Thomas ployait sous le joug d'un placard exigu sous l'escalier. Ce jour marqua pourtant une rupture par la réception d'un parchemin insolite.",
+                Eng_A1: "Thomas is an eleven-year-old boy. He lives in a room under the stairs...",
+                Eng_A2: "Thomas is a young boy who sleeps in a small room under the stairs...",
+                Eng_B1: "Thomas is an orphan raised by strict guardians who confined him to a small space...",
+                Eng_C1: "Thomas spent his nights in a narrow space under the stairs. However, the monotony...",
+                Eng_Fluide: "Thomas buckled under the yoke of a cramped closet under the stairs. This day marked..."
+            },
+            1: {
+                title: "L'Ascension de Temüjin",
+                A1: "Temüjin est un chef de guerre. Il fait froid et sa famille est pauvre dans la <b>forêt</b>. Il veut unir les tribus.",
+                A2: "Temüjin est un guerrier qui doit unifier les tribus de Mongolie. Son enfance est marquée par la faim et le froid des steppes.",
+                B1: "Avant d'être proclamé Genghis Khan, l'homme s'appelait Temüjin. Son parcours débute dans la misère après l'assassinat de son père.",
+                C1: "L'histoire de la Mongolie fut bouleversée par Temüjin. Condamné à errer dans des landes désolées, il apprit l'art de la survie.",
+                Fluide: "L'épopée de Temüjin, s'extirpant des limbes de l'anonymat pour s'ériger en monarque des steppes, reste un jalon historique prodigieux.",
+                Eng_A1: "Temüjin is a warlord. It is cold and his family is poor in the forest...",
+                Eng_A2: "Temüjin is a warrior who must unify the tribes of Mongolia. His childhood...",
+                Eng_B1: "Before being proclaimed Genghis Khan, the man was named Temüjin...",
+                Eng_C1: "The history of Mongolia was overturned by Temüjin. Condemned to wander...",
+                Eng_Fluide: "The epic of Temüjin, clawing his way out of the limbo of anonymity to establish..."
+            }
+        };
+
+        // Mock Dynamic Server Intelligence Engine (Replacing Google Cloud Run during testing)
+        const mockCloudIntelligenceRegistry = {
+            "Default": {
+                title: "Analyse des Marchés Publics",
+                A1: "Les <b>dirigeants</b> parlent de l'économie. Ils signent un nouvel <b>accord</b> simple pour le travail.",
+                A2: "Les dirigeants européens se réunissent pour discuter de l'économie globale. Un nouvel accord est en cours de signature.",
+                B1: "Les principaux dirigeants se penchent sur les réformes économiques. Un accord préliminaire a été trouvé après des négociations tendues.",
+                C1: "Les chefs d'État évaluent la trajectoire de l'économie continentale. Un accord d'envergure vient d'être ratifié ce matin.",
+                Fluide: "Les hauts dirigeants ont acté la refonte structurelle des marchés. Un accord de convergence macroéconomique a été entériné.",
+                Eng_A1: "The leaders talk about the economy. They sign a simple new agreement...",
+                Eng_A2: "The European leaders meet to discuss the global economy...",
+                Eng_B1: "The main leaders look into economic reforms. A preliminary agreement...",
+                Eng_C1: "The heads of state evaluate the trajectory of the continental economy...",
+                Eng_Fluide: "The top leaders finalized the structural overhaul of the markets..."
+            }
+        };
+
+        function switchActiveTab(tabId, element) {
+            activeTabId = tabId;
+            document.querySelectorAll('.menu-view').forEach(view => view.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+            if (tabId === 'view-flashcards') renderFlashcardsEngine();
+        }
+
+        function rotateStoriesLibrary() {
+            triggerToastNotification("🔄 Rotation de la bibliothèque...");
+            const container = document.getElementById('stories-feed-container');
+            container.innerHTML = '';
+            let scrambled = [...globalStoriesRepository].sort(() => 0.5 - Math.random());
+            scrambled.forEach(story => {
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                card.onclick = () => openReaderWorkspace('story', story.id);
+                card.innerHTML = `<h3>${story.title}</h3><p>${story.snippet}</p><span class="badge">${story.tier}</span>`;
+                container.appendChild(card);
+            });
+        }
+
+        // Automatic Feed Simulator splitting items into three distinct regional zones
+        function fetchLiveRegionalNews() {
+            triggerToastNotification("📰 Chargement des flux d'actualités régionaux...");
+            const segments = ['local', 'europe', 'global'];
+            const sampleHeadlines = {
+                local: ["Nouvelles mesures écologiques à Paris", "Ouverture du festival du livre"],
+                europe: ["Sommet de Bruxelles sur l'énergie", "Nouvelles directives sur la tech"],
+                global: ["Mission spatiale vers Mars confirmée", "Fluctuations sur les marchés mondiaux"]
+            };
+
+            segments.forEach(seg => {
+                const container = document.getElementById(`news-${seg}-container`);
