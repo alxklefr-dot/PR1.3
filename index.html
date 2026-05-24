@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LangSift Ecosystem</title>
+    <title>LangSift Ecosystem - Test Sandbox</title>
     <style>
         :root {
             --bg-color: #fdfbf7;
@@ -72,7 +72,6 @@
             padding-bottom: 4px;
         }
 
-        /* Controls */
         .action-bar {
             display: flex;
             justify-content: center;
@@ -90,11 +89,8 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
-        .refresh-btn:active { transform: scale(0.97); }
 
-        /* Card Elements */
         .item-list {
             display: flex;
             flex-direction: column;
@@ -107,19 +103,16 @@
             box-shadow: 0 3px 10px rgba(0,0,0,0.03);
             border: 1px solid rgba(0,0,0,0.02);
             cursor: pointer;
-            transition: transform 0.15s;
         }
-        .content-card:active { transform: scale(0.99); }
         .content-card h3 {
             margin: 0 0 6px 0;
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.35;
         }
         .content-card p {
             margin: 0;
-            font-size: 12.5px;
+            font-size: 12px;
             color: var(--text-muted);
-            line-height: 1.4;
         }
         .badge {
             display: inline-block;
@@ -132,7 +125,7 @@
             margin-top: 8px;
         }
 
-        /* CRITICAL: Fixed Header Layout ensuring Slider stays at the top of reading views */
+        /* Fixed Sticky Header Layout for Slider Controls */
         .reader-header {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -164,7 +157,6 @@
         .slider-label {
             font-size: 12px;
             font-weight: bold;
-            color: var(--text-color);
         }
         .slider-container {
             width: 100%;
@@ -177,7 +169,6 @@
             width: 100%;
             accent-color: var(--accent-color);
             margin: 4px 0;
-            cursor: pointer;
         }
         .ticks {
             display: flex;
@@ -189,7 +180,7 @@
         }
 
         .reader-content {
-            margin-top: 105px; /* Offset to prevent fixed header overlap */
+            margin-top: 110px;
             width: 100%;
         }
         .story-title {
@@ -199,7 +190,7 @@
             line-height: 1.3;
         }
         .text-block {
-            font-size: 17.5px;
+            font-size: 17px;
             line-height: 1.75;
             margin-bottom: 25px;
         }
@@ -224,15 +215,16 @@
             background-color: #f3f0ea;
             border-left: 3px solid var(--accent-color);
             padding: 14px;
-            font-size: 14.5px;
+            font-size: 14px;
             color: #555;
             line-height: 1.5;
-            border-radius: 0 8px 8px 0;
+            white-space: pre-line;
             display: none;
             margin-bottom: 35px;
+            border-radius: 0 8px 8px 0;
         }
 
-        /* Binary Flashcard Engine Layout */
+        /* Binary Flashcards Elements */
         .flashcard-container {
             display: flex;
             flex-direction: column;
@@ -247,24 +239,23 @@
         .flashcard {
             width: 100%;
             max-width: 340px;
-            height: 200px;
+            height: 180px;
             background-color: var(--card-bg);
             border-radius: 16px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.03);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            cursor: pointer;
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
             position: relative;
+            cursor: pointer;
         }
         .flashcard .word-surface { font-size: 24px; font-weight: bold; margin-bottom: 8px; }
         .flashcard .word-translation { font-size: 17px; color: var(--accent-color); font-style: italic; display: none; }
-        .card-hint { position: absolute; bottom: 12px; font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-hint { position: absolute; bottom: 12px; font-size: 10px; color: #aaa; text-transform: uppercase; }
         
         .card-controls {
             display: flex;
@@ -279,24 +270,13 @@
             border-radius: 25px;
             border: none;
             font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
             color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
+            cursor: pointer;
         }
         .btn-know { background-color: var(--success-color); }
         .btn-unknown { background-color: var(--error-color); }
         
-        .empty-deck {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 40px 20px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
+        .empty-deck { text-align: center; color: var(--text-muted); padding: 40px; }
 
         /* Persistent Navigation Tab Footer */
         .bottom-nav {
@@ -319,8 +299,8 @@
             color: #aaa;
             font-size: 11px;
             font-weight: bold;
-            cursor: pointer;
             width: 33%;
+            cursor: pointer;
         }
         .nav-item.active { color: var(--accent-color); }
         .nav-item-icon { font-size: 18px; margin-bottom: 2px; }
@@ -333,11 +313,8 @@
             padding: 10px 18px;
             border-radius: 20px;
             font-size: 13px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             display: none;
             z-index: 2000;
-            max-width: 80%;
-            text-align: center;
         }
         .status-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; font-size: 13px; }
     </style>
@@ -349,7 +326,7 @@
         <div id="view-stories" class="menu-view active">
             <div class="app-header">
                 <h1>Histoires</h1>
-                <p>Short stories configured to your framework</p>
+                <p>Explore narrative styles across language levels</p>
             </div>
             <div class="action-bar">
                 <button class="refresh-btn" onclick="rotateStoriesLibrary()">🔄 Tourner la bibliothèque</button>
@@ -360,7 +337,7 @@
         <div id="view-news" class="menu-view">
             <div class="app-header">
                 <h1>Actualités Direct</h1>
-                <p>Live news streams scaled into adaptive reading tiers</p>
+                <p>Live global feeds simulated directly on your machine</p>
             </div>
             <div class="action-bar">
                 <button class="refresh-btn" onclick="fetchLiveRegionalNews()">🔄 Actualiser les flux</button>
@@ -379,7 +356,7 @@
         <div id="view-flashcards" class="menu-view">
             <div class="app-header">
                 <h1>Mon Vocabulaire</h1>
-                <p>Sort items by your retention level</p>
+                <p>Master tracked vocabulary words by retention</p>
             </div>
             <div id="deck-wrapper"></div>
         </div>
@@ -405,6 +382,19 @@
             <div class="reader-content">
                 <div id="reader-title-display" class="story-title"></div>
                 <div id="reader-body-display" class="text-block"></div>
+                
+                <div id="brand-ad-placement" style="margin: 35px 0; display: none;">
+                    <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; text-align: center;">Sponsorisé — Analyse publicitaire</div>
+                    <div style="background: linear-gradient(135deg, #111 0%, #222 100%); color: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); position: relative; overflow: hidden;">
+                        <div id="ad-badge-display" style="position: absolute; top: 15px; right: 15px; background: #e60000; color: white; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 20px; transform: rotate(4deg); text-transform: uppercase;"></div>
+                        <div id="ad-header-display" style="font-family: Georgia, serif; font-size: 17px; line-height: 1.4; margin-bottom: 25px; padding-right: 75px; font-weight: bold;"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #333; padding-top: 15px;">
+                            <div id="ad-cta-display" style="font-size: 13px; font-style: italic; color: #ccc;"></div>
+                            <div style="background: #e60000; color: white; padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase;">Coca-Cola Zéro</div>
+                        </div>
+                    </div>
+                </div>
+
                 <button class="eng-toggle-btn" onclick="toggleTranslationBox()">Afficher la traduction / Show English</button>
                 <div id="reader-translation-panel" class="english-translation-panel"></div>
             </div>
@@ -430,10 +420,7 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // Set Cloud Endpoint (Set up your Google Cloud Run function to match this URL)
-        const googleCloudEndpoint = 'https://YOUR-FUNCTION-URL-HERE.a.run.app';
-
-        // State Core Engine
+        // Global Systems State Engine
         let activeTabId = 'view-stories';
         let readerContextType = 'story';
         let selectedItemRegistryId = 0;
@@ -444,21 +431,30 @@
         let newsCacheMatrix = { local: [], europe: [], global: [] };
         const levelsMap = { 1: "A1", 2: "A2", 3: "B1", 4: "C1", 5: "Fluide" };
 
-        // Hardcoded Dictionary Definitions Fallback
         const staticGlossary = {
             "accord": "agreement", "climat": "climate", "sommet": "summit", "dirigeants": "leaders", 
-            "vaisseau": "vessel/spaceship", "forêt": "forest", "chambre": "room", "lettre": "letter"
+            "vaisseau": "vessel/spaceship", "forêt": "forest", "chambre": "room", "lettre": "letter",
+            "goût": "taste", "sucre": "sugar", "plaisir": "pleasure", "intensité": "intensity", "expérience": "experience"
         };
 
-        // Complete Short Stories Base Library
+        // Coca-Cola Advertising Framework Matrix
+        const brandCampaignDatabase = {
+            active: true,
+            advertiser: "Coca-Cola Zero",
+            levels: {
+                1: { header: "Partagez le <b>goût</b> de Coca-Cola. Sans <b>sucre</b> !", badge: "Nouveau goût !", cta: "Déjà goûté ?", eng: "[A1 Ad] Share the taste of Coca-Cola. Without sugar! / New taste! / Tried it yet?" },
+                2: { header: "Partagez le bon <b>goût</b> de Coca-Cola. Zéro <b>sucre</b> !", badge: "Nouvelle recette, meilleur goût !", cta: "Est-ce que vous l'avez déjà essayé ?", eng: "[A2 Ad] Share the good taste... / New recipe, better taste! / Have you tried it?" },
+                3: { header: "Partagez le vrai <b>goût</b> de Coca-Cola, le <b>sucre</b> en moins.", badge: "Nouvelle formule : encore meilleur !", cta: "Qu'attendez-vous pour y goûter ?", eng: "[B1 Ad] Share the true taste... / New formula: even better! / What are you waiting for?" },
+                4: { header: "Partagez toute l'<b>intensité</b> de Coca-Cola, la culpabilité en moins.", badge: "Saveur réinventée : une intensité inédite.", cta: "Prêt à tenter l'<b>expérience</b> ?", eng: "[C1 Ad] Share all the intensity... / Unprecedented intensity. / Ready for the experience?" },
+                5: { header: "Partagez le <b>goût</b> unique de Coca-Cola. Tout le <b>plaisir</b>, zéro <b>sucre</b>.", badge: "Nouvelle recette : toujours aussi intense, encore plus irrésistible.", cta: "L'avez-vous testé ?", eng: "[Fluide Ad] Share the unique taste... / All the pleasure, zero sugar. / Have you tested it?" }
+            }
+        };
+
         const globalStoriesRepository = [
             { id: 0, title: "Le Garçon de l'Escalier", snippet: "An orphan child receives unexpected letters written in emerald ink.", tier: "Fantastique" },
-            { id: 1, title: "L'Ascension de Temüjin", snippet: "The harsh early survival winters of the youth who unified empires.", tier: "Histoire" },
-            { id: 2, title: "Le Secret de la Miniature", snippet: "A Parisian watchmaker stumbles upon an automated tracking machine.", tier: "Mystère" },
-            { id: 3, title: "Les Naufragés de l'Espace", snippet: "System engines cut out off the dangerous frozen rings of Jupiter.", tier: "Sci-Fi" }
+            { id: 1, title: "L'Ascension de Temüjin", snippet: "The harsh early survival winters of the youth who unified empires.", tier: "Histoire" }
         ];
 
-        // Static Story Database matching your existing data models
         const storyDatabase = {
             0: {
                 title: "Le Garçon de l'Escalier",
@@ -488,101 +484,80 @@
             }
         };
 
-        // Navigation Framework
+        // Mock Dynamic Server Intelligence Engine (Replacing Google Cloud Run during testing)
+        const mockCloudIntelligenceRegistry = {
+            "Default": {
+                title: "Analyse des Marchés Publics",
+                A1: "Les <b>dirigeants</b> parlent de l'économie. Ils signent un nouvel <b>accord</b> simple pour le travail.",
+                A2: "Les dirigeants européens se réunissent pour discuter de l'économie globale. Un nouvel accord est en cours de signature.",
+                B1: "Les principaux dirigeants se penchent sur les réformes économiques. Un accord préliminaire a été trouvé après des négociations tendues.",
+                C1: "Les chefs d'État évaluent la trajectoire de l'économie continentale. Un accord d'envergure vient d'être ratifié ce matin.",
+                Fluide: "Les hauts dirigeants ont acté la refonte structurelle des marchés. Un accord de convergence macroéconomique a été entériné.",
+                Eng_A1: "The leaders talk about the economy. They sign a simple new agreement...",
+                Eng_A2: "The European leaders meet to discuss the global economy...",
+                Eng_B1: "The main leaders look into economic reforms. A preliminary agreement...",
+                Eng_C1: "The heads of state evaluate the trajectory of the continental economy...",
+                Eng_Fluide: "The top leaders finalized the structural overhaul of the markets..."
+            }
+        };
+
         function switchActiveTab(tabId, element) {
             activeTabId = tabId;
             document.querySelectorAll('.menu-view').forEach(view => view.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-            
             document.getElementById(tabId).classList.add('active');
             element.classList.add('active');
-            
             if (tabId === 'view-flashcards') renderFlashcardsEngine();
         }
 
-        // Feature 3: Rotate Stories Feed Array
         function rotateStoriesLibrary() {
             triggerToastNotification("🔄 Rotation de la bibliothèque...");
             const container = document.getElementById('stories-feed-container');
             container.innerHTML = '';
-            
             let scrambled = [...globalStoriesRepository].sort(() => 0.5 - Math.random());
-            
             scrambled.forEach(story => {
                 const card = document.createElement('div');
                 card.className = 'content-card';
                 card.onclick = () => openReaderWorkspace('story', story.id);
-                card.innerHTML = `
-                    <h3>${story.title}</h3>
-                    <p>${story.snippet}</p>
-                    <span class="badge">${story.tier}</span>
-                `;
+                card.innerHTML = `<h3>${story.title}</h3><p>${story.snippet}</p><span class="badge">${story.tier}</span>`;
                 container.appendChild(card);
             });
         }
 
-        // Feature 1: Live Tri-Tier News Engine 
-        async function fetchLiveRegionalNews() {
-            triggerToastNotification("📰 Connexion aux flux d'actualités Google France...");
-            
-            // Structured processing parameters representing local, continental, and global topics
-            const feedConfigs = [
-                { type: 'local', url: 'https://news.google.com/rss/headlines/section/geo/FR?hl=fr&gl=FR&ceid=FR:fr' },
-                { type: 'europe', url: 'https://news.google.com/rss/search?q=Europe&hl=fr&gl=FR&ceid=FR:fr' },
-                { type: 'global', url: 'https://news.google.com/rss/headlines/section/topic/WORLD?hl=fr&gl=FR&ceid=FR:fr' }
-            ];
+        // Automatic Feed Simulator splitting items into three distinct regional zones
+        function fetchLiveRegionalNews() {
+            triggerToastNotification("📰 Chargement des flux d'actualités régionaux...");
+            const segments = ['local', 'europe', 'global'];
+            const sampleHeadlines = {
+                local: ["Nouvelles mesures écologiques à Paris", "Ouverture du festival du livre"],
+                europe: ["Sommet de Bruxelles sur l'énergie", "Nouvelles directives sur la tech"],
+                global: ["Mission spatiale vers Mars confirmée", "Fluctuations sur les marchés mondiaux"]
+            };
 
-            for (const config of feedConfigs) {
-                const targetContainer = document.getElementById(`news-${config.type}-container`);
-                targetContainer.innerHTML = `<div class="status-msg">Chargement...</div>`;
-                
-                try {
-                    const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(config.url)}`;
-                    const res = await fetch(proxyUrl);
-                    const data = await res.json();
-                    
-                    if (data.items && data.items.length > 0) {
-                        newsCacheMatrix[config.type] = [];
-                        targetContainer.innerHTML = '';
-                        
-                        // Restrict total views to keep page footprint tiny and fast
-                        data.items.slice(0, 3).forEach((item, idx) => {
-                            newsCacheMatrix[config.type].push({
-                                title: item.title,
-                                description: item.description ? item.description.replace(/<[^>]*>/g, '') : '',
-                                processedData: null 
-                            });
+            segments.forEach(seg => {
+                const container = document.getElementById(`news-${seg}-container`);
+                container.innerHTML = '';
+                newsCacheMatrix[seg] = [];
 
-                            const card = document.createElement('div');
-                            card.className = 'content-card';
-                            card.onclick = () => openReaderWorkspace(`news-${config.type}`, idx);
-                            card.innerHTML = `
-                                <h3>${item.title}</h3>
-                                <p>${item.pubDate ? new Date(item.pubDate).toLocaleDateString('fr-FR') : ''}</p>
-                            `;
-                            targetContainer.appendChild(card);
-                        });
-                    } else {
-                        throw new Error("No data structural fields returned.");
-                    }
-                } catch (e) {
-                    targetContainer.innerHTML = `<div class="status-msg">Flux non disponible pour le moment.</div>`;
-                }
-            }
+                sampleHeadlines[seg].forEach((headline, idx) => {
+                    newsCacheMatrix[seg].push({ title: headline, processedData: null });
+                    const card = document.createElement('div');
+                    card.className = 'content-card';
+                    card.onclick = () => openReaderWorkspace(`news-${seg}`, idx);
+                    card.innerHTML = `<h3>${headline}</h3><p>Mis à jour en direct</p>`;
+                    container.appendChild(card);
+                });
+            });
         }
 
-        // Reader View Initialization
         function openReaderWorkspace(type, id) {
             readerContextType = type;
             selectedItemRegistryId = id;
-            
             document.getElementById(activeTabId).classList.remove('active');
             document.getElementById('view-reader').classList.add('active');
-            
             document.getElementById('level-slider').value = selectedCefrLevelIndex;
             document.getElementById('reader-translation-panel').style.display = 'none';
             window.scrollTo(0, 0);
-            
             executeContentResolution(type, id, selectedCefrLevelIndex);
         }
 
@@ -592,8 +567,8 @@
             window.scrollTo(0, 0);
         }
 
-        // Feature 2: High Performance Parsing Pipeline with Local Cache Locking
-        async function executeContentResolution(type, id, levelIndex) {
+        // Processing Pipeline running simulation engine loops instantly
+        function executeContentResolution(type, id, levelIndex) {
             const levelKey = levelsMap[levelIndex];
             document.getElementById('level-tag').innerText = levelKey;
             
@@ -605,76 +580,73 @@
                 const newsSection = type.split('-')[1];
                 const activeArticle = newsCacheMatrix[newsSection][id];
                 
-                // Feature 1.2: Check if memory cache contains data to block repeated server costs
-                if (activeArticle.processedData) {
-                    const cached = activeArticle.processedData;
-                    renderParsedHTML(cached.title, cached[levelKey], cached["Eng_" + levelKey]);
-                    return;
+                // If not cached yet, simulate the processing delay of the cloud engine
+                if (!activeArticle.processedData) {
+                    activeArticle.processedData = {
+                        title: activeArticle.title,
+                        A1: `[A1] En direct : ${mockCloudIntelligenceRegistry["Default"].A1}`,
+                        A2: `[A2] En direct : ${mockCloudIntelligenceRegistry["Default"].A2}`,
+                        B1: `[B1] En direct : ${mockCloudIntelligenceRegistry["Default"].B1}`,
+                        C1: `[C1] En direct : ${mockCloudIntelligenceRegistry["Default"].C1}`,
+                        Fluide: `[Fluide] En direct : ${mockCloudIntelligenceRegistry["Default"].Fluide}`,
+                        Eng_A1: mockCloudIntelligenceRegistry["Default"].Eng_A1,
+                        Eng_A2: mockCloudIntelligenceRegistry["Default"].Eng_A2,
+                        Eng_B1: mockCloudIntelligenceRegistry["Default"].Eng_B1,
+                        Eng_C1: mockCloudIntelligenceRegistry["Default"].Eng_C1,
+                        Eng_Fluide: mockCloudIntelligenceRegistry["Default"].Eng_Fluide
+                    };
                 }
                 
-                document.getElementById('reader-title-display').innerText = "Normalisation en cours...";
-                document.getElementById('reader-body-display').innerHTML = `
-                    <div class="status-msg">
-                        ⚡ Google Cloud Run & Gemini analysent l'article live...<br>
-                        <span style="font-size:11px; color:#aaa;">Génération instantanée des 5 paliers CEFR.</span>
-                    </div>`;
-
-                try {
-                    const response = await fetch(googleCloudEndpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            title: activeArticle.title,
-                            content: activeArticle.description || activeArticle.title
-                        })
-                    });
-                    
-                    if (!response.ok) throw new Error("Cloud transaction rejected");
-                    const cloudResponsePayload = await response.json();
-                    
-                    // Save into memory index
-                    newsCacheMatrix[newsSection][id].processedData = cloudResponsePayload;
-                    
-                    renderParsedHTML(cloudResponsePayload.title, cloudResponsePayload[levelKey], cloudResponsePayload["Eng_" + levelKey]);
-                } catch (err) {
-                    document.getElementById('reader-body-display').innerHTML = `
-                        <div class="status-msg" style="color:var(--error-color);">
-                            ⚠️ Échec de la connexion Cloud Run.<br>
-                            <span style="font-size:11px;">Configurez votre endpoint de production pour activer l'analyse IA.</span>
-                        </div>`;
-                }
+                const data = activeArticle.processedData;
+                renderParsedHTML(data.title, data[levelKey], data["Eng_" + levelKey]);
             }
         }
 
         function renderParsedHTML(title, bodyText, translationText) {
             document.getElementById('reader-title-display').innerText = title;
             
-            // Regex to match and parse bold structural tags generated by AI
             let processed = bodyText.replace(/<b>(.*?)<\/b>/g, function(match, word) {
                 let cleanKey = word.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()""'«»]/g,"").trim();
-                let definition = staticGlossary[cleanKey] || "Traduction contextuelle générée";
+                let definition = staticGlossary[cleanKey] || "Traduction contextuelle d'étude";
                 return `<span class="w" data-fr="${cleanKey}" data-en="${definition}">${word}</span>`;
             });
-            
             document.getElementById('reader-body-display').innerHTML = processed;
+
+            // Brand Advertising Placement Insertion Logic
+            const adContainer = document.getElementById('brand-ad-placement');
+            if (brandCampaignDatabase.active) {
+                adContainer.style.display = 'block';
+                const ad = brandCampaignDatabase.levels[selectedCefrLevelIndex];
+                
+                let processedAdHeader = ad.header.replace(/<b>(.*?)<\/b>/g, function(match, word) {
+                    let cleanKey = word.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()""'«»]/g,"").trim();
+                    let definition = staticGlossary[cleanKey] || "Sponsor asset term";
+                    return `<span class="w" style="border-bottom-color:#e60000;" data-fr="${cleanKey}" data-en="${definition}">${word}</span>`;
+                });
+                
+                document.getElementById('ad-header-display').innerHTML = processedAdHeader;
+                document.getElementById('ad-badge-display').innerText = ad.badge;
+                document.getElementById('ad-cta-display').innerText = ad.cta;
+                translationText += `\n\n--- SPONSOR REVENUE TRACK ---\n${ad.eng}`;
+            } else {
+                adContainer.style.display = 'none';
+            }
+
             document.getElementById('reader-translation-panel').innerText = translationText;
-            
             bindInteractiveWordNodes();
         }
 
         function bindInteractiveWordNodes() {
             document.querySelectorAll('span.w').forEach(node => {
-                node.addEventListener('click', function() {
+                node.onclick = function() {
                     const fr = this.getAttribute('data-fr');
                     const en = this.getAttribute('data-en');
-                    
                     triggerToastNotification(`💡 <b>${this.innerText}</b> : ${en}`);
-                    
                     if (!memoryVocabularyRegistry.find(item => item.fr === fr)) {
                         memoryVocabularyRegistry.push({ fr: fr, en: en });
                         document.getElementById('global-card-count').innerText = memoryVocabularyRegistry.length;
                     }
-                });
+                };
             });
         }
 
@@ -690,11 +662,10 @@
                 wrapper.innerHTML = `
                     <div class="empty-deck">
                         <div style="font-size:32px; margin-bottom:10px;">🎴</div>
-                        <p>Votre carnet est vide.<br>Tapez sur les mots soulignés pendant votre lecture pour les ajouter ici.</p>
+                        <p>Votre carnet est vide.<br>Tapez sur les mots soulignés pendant votre lecture pour alimenter ce module.</p>
                     </div>`;
                 return;
             }
-            
             if (flashcardTargetIndex >= memoryVocabularyRegistry.length) flashcardTargetIndex = 0;
             const card = memoryVocabularyRegistry[flashcardTargetIndex];
 
@@ -727,15 +698,13 @@
 
         function processCardResolution(userKnowsWord) {
             if (userKnowsWord) {
-                // Remove item completely from memory registry array
+                // Feature 1.3: Remove word completely from memory loop array if known
                 memoryVocabularyRegistry.splice(flashcardTargetIndex, 1);
                 document.getElementById('global-card-count').innerText = memoryVocabularyRegistry.length;
-                triggerToastNotification("Card archived!");
+                triggerToastNotification("Mot maîtrisé et archivé !");
             } else {
-                // If unknown, skip forward to the next index item
                 flashcardTargetIndex++;
             }
-            
             renderFlashcardsEngine();
         }
 
@@ -746,13 +715,11 @@
             setTimeout(() => { toast.style.display = 'none'; }, 2000);
         }
 
-        // Live Event Listeners binding level changes directly to cache lookup
         document.getElementById('level-slider').addEventListener('input', function() {
             selectedCefrLevelIndex = parseInt(this.value);
             executeContentResolution(readerContextType, selectedItemRegistryId, selectedCefrLevelIndex);
         });
 
-        // Initialization Boot
         window.onload = function() {
             rotateStoriesLibrary();
             fetchLiveRegionalNews();
